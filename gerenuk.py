@@ -4,7 +4,7 @@ import numpy as np
 import bpm_extract as bpm
 #import aubio as ab
 import wave
-import time
+#import time
 import pyaudio
 
 
@@ -17,7 +17,7 @@ soundfile =  'cube.mp3'
 slice_length = 3
 song_length = 2*60+38
 s_rate = 44100
-chunk = s_rate * slice_length
+chunk = (s_rate * slice_length)
 
 #video_name = 'video.avi'
 
@@ -30,10 +30,12 @@ ims = list()
 for i in images:
     ims.append(cv2.imread(os.path.join(image_folder, i)))
 
+window_name = 'frame'
 # define printsize
-frame = cv2.imread(os.path.join(image_folder, images[0]))
-height, width, layers = frame.shape
-
+#frame = cv2.imread(os.path.join(image_folder, images[0]))
+#height, width, layers = frame.shape
+cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
+cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
 ### we exclude the whole section changing to incomming sounds
 # slice song to 5s long wav-segments for the adaption of the gerenuk
@@ -46,15 +48,17 @@ p=pyaudio.PyAudio() # start the PyAudio class
 
 # start musik
 #os.system("start E:\\Gerenuk\\" + soundfile)
-stream=p.open(format=pyaudio.paInt16,channels=1,rate=s_rate,input=True,
+stream=p.open(format=pyaudio.paInt16,channels=2,rate=s_rate,input=True,
               frames_per_buffer=chunk) #uses default input device
 
 t_cor = 0
 # for every slice we adapt the speed
 #for s in slices:
+EXIT = False
+i = 0
 while True:
-    start_time = time.time()
-    
+    #start_time = time.time()
+
 
     # add folder to filename
     #s = os.path.join(slice_folder, s)
@@ -65,30 +69,36 @@ while True:
     output_file="slices/test.wav"
     open(output_file, 'w').close()
     outfile = wave.open(output_file, mode='wb')
-    outfile.setparams((4, 1, s_rate, 0, 'NONE', 'not compressed'))
+    outfile.setparams((2, 2, s_rate, 0, 'NONE', 'not compressed'))
     outfile.writeframes(s.tostring())
-    outfile.writeframes(s.tostring())
+    #outfile.writeframes(s.tostring())
     outfile.close()
     # analyze bps
-    bps = bpm.get_file_bpm("slices/test.wav") / 60
+    bps = bpm.get_file_bpm(output_file) / 60
     
     # set image rate
-    d = int((1000 / n_images / bps))# - t_cor)
-    print(str(bps) + "BPS ")
+    d = int((1 / (n_images * bps) * 1000))# - t_cor)
+    #i += 1
     #p.play()
     #os.system("start E:\\Gerenuk\\" + s)
-    end_time = time.time()
-    t_cor = (end_time - start_time) * 1000 / n_images
-
+    #end_time = time.time()
+    #t_cor = (start_time - end_time) * 1000 / n_images
+    #if i > 1:
+        #d = int(d - t_cor)
+    
+    print(str(bps*60) + "BPM " )
     # print the images in a loop
     for t in np.arange(1 , slice_length * bps):
-        for img in ims:
+        if EXIT:
+            break
+        for img in ims:             
             #video.write(cv2.imread(os.path.join(image_folder, image)))
-            cv2.imshow('Frame',img)
+            cv2.imshow('frame',img)
             #wait command between the images
             key = cv2.waitKey(d)
             if key == 27:
                 print('Pressed Esc')
+                EXIT = True
                 break
     
 

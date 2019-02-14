@@ -13,24 +13,6 @@ def get_file_bpm(path, params=None):
         params = {}
     # default:
     samplerate, win_s, hop_s = 44100, 1024, 512
-    if 'mode' in params:
-        if params.mode in ['super-fast']:
-            # super fast
-            samplerate, win_s, hop_s = 4000, 128, 64
-        elif params.mode in ['fast']:
-            # fast
-            samplerate, win_s, hop_s = 8000, 512, 128
-        elif params.mode in ['default']:
-            pass
-        else:
-            raise ValueError("unknown mode {:s}".format(params.mode))
-    # manual settings
-    if 'samplerate' in params:
-        samplerate = params.samplerate
-    if 'win_s' in params:
-        win_s = params.win_s
-    if 'hop_s' in params:
-        hop_s = params.hop_s
 
     s = source(path, samplerate, hop_s)
     samplerate = s.samplerate
@@ -55,12 +37,12 @@ def get_file_bpm(path, params=None):
     def beats_to_bpm(beats, path):
         # if enough beats are found, convert to periods then to bpm
         if len(beats) > 1:
-            if len(beats) < 4:
-                print("few beats found in {:s}".format(path))
+            #if len(beats) < 4:
+                #print("few beats found in {:s}".format(path))
             bpms = 60./diff(beats)
             return median(bpms)
         else:
-            print("not enough beats found in {:s}".format(path))
+            #print("not enough beats found in {:s}".format(path))
             return 0
 
     return beats_to_bpm(beats, path)
