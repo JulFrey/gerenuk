@@ -1,10 +1,14 @@
+# python version 3.6
+# using pyaudio and aubio
+# https://github.com/aubio/aubio/tree/master/python/demos
+
 import cv2
 import os
 import numpy as np
 import bpm_extract as bpm
 #import aubio as ab
 import wave
-#import time
+import time
 import pyaudio
 
 
@@ -56,8 +60,8 @@ t_cor = 0
 #for s in slices:
 EXIT = False
 i = 0
-while True:
-    #start_time = time.time()
+while not EXIT:
+    start_time = time.time()
 
 
     # add folder to filename
@@ -78,19 +82,17 @@ while True:
     
     # set image rate
     d = int((1 / (n_images * bps) * 1000))# - t_cor)
-    #i += 1
+    i += 1
     #p.play()
     #os.system("start E:\\Gerenuk\\" + s)
-    #end_time = time.time()
-    #t_cor = (start_time - end_time) * 1000 / n_images
-    #if i > 1:
-        #d = int(d - t_cor)
+    end_time = time.time()
+    t_cor = (end_time - start_time) * 1000 / n_images
+    if i > 1000:
+        d = int(d - t_cor)
     
-    print(str(bps*60) + "BPM " )
+    print(str(i)+ ': ' +str(bps*60) + "BPM " )
     # print the images in a loop
     for t in np.arange(1 , slice_length * bps):
-        if EXIT:
-            break
         for img in ims:             
             #video.write(cv2.imread(os.path.join(image_folder, image)))
             cv2.imshow('frame',img)
